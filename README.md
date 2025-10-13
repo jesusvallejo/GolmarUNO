@@ -124,6 +124,9 @@ Recuerda que el telefonillo se alimenta con 17v, necesitaras un conversor (BUCK)
 D -----|
        |tx telf. - diode - tx esp32
 ```
+Formas de saber la direccion de tu telefonillo: 
+1. Conecta via uart, haz una llamada desde la placa, observa la direccion
+2. Haz un dump del firmware, en la direccion 400 tendrás la direccion disponible.
  
 
 
