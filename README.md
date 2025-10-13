@@ -115,5 +115,14 @@ reset_init; halt; flash read_bank 0 t-540.bin
 
 * El comando de apertura `0x90` sólo surte efecto durante una llamada — intentar reproducirlo fuera de ese contexto no funcionará con la placa principal observada.
 
+## ESPHOME
+Se añade schema yaml de esphome para domótica , se debe poner un diodo entre el puerto tx del esp32 y el tx del telefonillo. En caso de no hacerlo no recibiras las llamadas correctamente en el telefonillo.
+
+       |rx telf. - ----- - rx esp32 
+D -----|
+       |tx telf. - diode - tx esp32
+
+ 
+
 
 
