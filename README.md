@@ -28,6 +28,11 @@ Se ha extraído el firmware con OpenOCD. Comando usado:
 ```bash
 openocd -f 'interface/stlink.cfg' -f 'target/lpc11xx.cfg' -c "adapter speed 1000" . reset_init; halt; flash read_bank 0 t-540.bin
 ```
+Abrimos la sesion de debug:
+```bash
+telnet localhost 4444
+reset_init; halt; flash read_bank 0 t-540.bin
+```
 
 ---
 
@@ -57,8 +62,8 @@ openocd -f 'interface/stlink.cfg' -f 'target/lpc11xx.cfg' -c "adapter speed 1000
 
 ## Formato de mensajes
 
-* Mensaje típico: 4 bytes.
-* Los tres primeros bytes hacen referencia a la dirección (o son campos de dirección) y el cuarto byte es el comando.
+* Mensaje: 4 bytes.
+* Los tres primeros bytes son campos de dirección y el cuarto byte es el comando.
 
 **Ejemplo**
 
@@ -83,11 +88,24 @@ openocd -f 'interface/stlink.cfg' -f 'target/lpc11xx.cfg' -c "adapter speed 1000
 ### Particularidad — Central del conserje (CE-941)
 
 * La central del conserje puede iniciar una llamada directamente con la placa, sin interacción previa de la placa principal, lo que permite accionar la puerta desde la central.
+* Por defecto tiene la direccion 00 00 00
 * Comandos observados:
 
   * Iniciar llamada: `00 00 00 22`
   * Abrir puerta: `00 00 00 90`
 * Se recomienda una limpieza del bus (por ejemplo `00 00 00 11`) tras realizar estas acciones.
+
+### Comandos
+| Acción        | Commando    |
+| ------------- | -------- |
+| Llamada entrante    | 00 00 XX 37 |
+| ACK                 | 00 00 XX 01 |
+| Limpiar BUS    | 00 00 00 11    |
+| Iniciar Audio    | 00 00 XX 10  |
+| LLamada de panico |00 00 XX 44|
+| Abrir puerta | 00 00 XX 90 |
+| Iniciar llanada con placa | 00 00 00 22|
+
 
 ---
 
