@@ -10,6 +10,8 @@ Proyecto: ingeniería inversa sobre la placa T-540 UNO SE (repuesto de T-740 UNO
 
 Este repositorio documenta el análisis y los hallazgos sobre la electrónica y el protocolo de comunicación del intercomunicador Golmar (T-540 / UNO). Incluye información de hardware, conexión al debug, extracción de firmware, características del bus serial y ejemplos de comandos observados durante la ingeniería inversa.
 
+No me hago responsable de cualquier daño que se pueda ocasionar, actua bajo tu propia responsabilidad.
+
 ---
 
 ## Hardware principal
