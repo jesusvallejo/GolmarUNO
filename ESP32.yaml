@@ -1,0 +1,220 @@
+esphome:
+  name: intercom
+  friendly_name: Intercom
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# UART Configuration for communication with Arduino
+uart:
+  - id: arduino_uart
+    tx_pin: GPIO10
+    rx_pin: GPIO4
+    baud_rate: 2600
+    data_bits: 8
+    parity: EVEN
+    stop_bits: 1
+    debug:
+
+# Text sensor to display received messages
+text_sensor:
+  - platform: template
+    name: "Received Messages"
+    id: received_messages
+    internal: true
+
+# Binary sensor that turns on when specific messages are received
+binary_sensor:
+  - platform: template
+    name: "Incoming Call"
+    id: message_detector
+    
+
+# Button to send S285 message
+button:
+  # - platform: template
+  #   name: "Send UART Message"
+  #   on_press:
+  #     then:
+  #       - lambda: |-
+  #           // 1. Get the hex string from the text component
+  #           // ⚠️ Make sure the ID here matches your text component's ID
+  #           std::string hex_string = id(uart_payload_text).state;
+
+  #           // 2. Validate the input string
+  #           // It must have an even number of characters to form complete bytes.
+  #           if (hex_string.length() % 2 != 0) {
+  #             ESP_LOGE("uart_send", "Error: Hex string must have an even number of characters.");
+  #             return; // Stop if invalid
+  #           }
+  #           // It must only contain valid hexadecimal characters (0-9, A-F, a-f).
+  #           if (hex_string.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos) {
+  #             ESP_LOGE("uart_send", "Error: Hex string contains invalid characters.");
+  #             return; // Stop if invalid
+  #           }
+
+  #           // 3. Prepare the byte array (vector) for sending
+  #           std::vector<uint8_t> byte_payload;
+
+  #           // Add your static prefix bytes
+  #           byte_payload.push_back(0x00);
+  #           byte_payload.push_back(0x00);
+
+  #           // 4. Loop through the string and convert hex pairs to bytes
+  #           for (int i = 0; i < hex_string.length(); i += 2) {
+  #             // Get a two-character substring (e.g., "53")
+  #             std::string byte_string = hex_string.substr(i, 2);
+  #             // Convert the hex string to a byte (e.g., "53" -> 0x53)
+  #             uint8_t byte = (uint8_t) strtol(byte_string.c_str(), NULL, 16);
+  #             byte_payload.push_back(byte);
+  #           }
+
+  #           // 5. Send the complete byte array over UART
+  #           // ⚠️ Make sure the ID here matches your uart component's ID
+  #           ESP_LOGD("uart_send", "Sending %d bytes over UART.", byte_payload.size());
+  #           id(arduino_uart).write_array(byte_payload.data(), byte_payload.size());
+
+  - platform: template
+    name: "Open Door"
+    on_press:
+      then:
+        - lambda: |-
+            uint8_t call_pattern1[] = {0x00,0x00,0x00,0x22};         
+            uint8_t call_pattern2[] = {0x00,0x00,0x00,0x90}; 
+            uint8_t call_pattern3[] = {0x00,0x00,0x00,0x11};                      
+            id(arduino_uart).write_array(call_pattern1, 4);
+            delay(500);
+            id(arduino_uart).write_array(call_pattern2, 4);
+            delay(4000);
+            id(arduino_uart).write_array(call_pattern3, 4);
+  # - platform: template
+  #   name: "Bus clear"
+  #   on_press:
+  #     then:
+  #       - lambda: |-
+  #           // Simulate incoming call patterN
+  #           uint8_t bus_clear[] = {0x00 ,0x00 ,0x00 ,0x11}; 
+  #           id(arduino_uart).write_array(bus_clear, 4);
+  #           id(arduino_uart).write_array(bus_clear, 4);
+  #           id(arduino_uart).write_array(bus_clear, 4);
+
+# UART data processing using interval
+interval:
+  - interval: 100ms
+    then:
+      - lambda: |-
+          // Initialize binary sensor to OFF on first run
+          static bool initialized = false;
+          if (!initialized) {
+            id(message_detector_state) = false;
+            id(message_detector).publish_state(false);
+            ESP_LOGI("UART", "Initializing binary sensor to OFF");
+            initialized = true;
+          }
+          
+          // Check for UART data
+          if (id(arduino_uart).available()) {
+            uint8_t data;
+            while (id(arduino_uart).read_byte(&data)) {
+              // Process each byte
+              static std::string hex_buffer = "";
+              static int byte_count = 0;
+              
+              // Convert byte to hex string for logging
+              char hex_str[8];
+              snprintf(hex_str, sizeof(hex_str), "%02X", data);
+              hex_buffer += hex_str;
+              hex_buffer += " ";
+              byte_count++;
+              
+              // Log each byte received
+              ESP_LOGI("UART", "Received byte: 0x%02X ('%c')", data, (data >= 32 && data <= 126) ? data : '?');
+              
+              static uint8_t expected_pattern[] = {0x00 ,0x00 ,0x13 ,0x37}; 
+            
+              static int pattern_index = 0;
+              static bool pattern_matched = false;
+              
+              // Check if this byte matches the expected pattern                             
+               if (data == expected_pattern[pattern_index]) {
+                 pattern_index++;
+                 // Check if we've completed the pattern
+                if (pattern_index >= 4) {
+                   ESP_LOGI("UART", "*** INCOMING CALL DETECTED! Turning on binary sensor ***");
+                   id(message_detector_state) = true;
+                   id(message_detector).publish_state(true);
+                   
+                   // Start timer countdown (3 seconds = 60 intervals at 50ms)
+                   id(message_detector_timer_count) = 60;
+                   
+                   // Reset pattern detection
+                   pattern_index = 0;
+                   pattern_matched = true;
+                 }
+               } else {
+                 pattern_index = 0;
+               }
+              // Update text sensor with hex representation
+              if (byte_count >= 40) {
+                id(received_messages).publish_state(hex_buffer);
+                hex_buffer = "";
+                byte_count = 0;
+              }
+            }
+          }
+          
+          // Handle timer countdown for binary sensor auto-off
+          if (id(message_detector_timer_count) > 0) {
+            id(message_detector_timer_count)--;
+            if (id(message_detector_timer_count) == 0) {
+              id(message_detector_state) = false;
+              id(message_detector).publish_state(false);
+              ESP_LOGI("UART", "Timer finished - turning off binary sensor");
+            }
+          }
+
+
+text:
+  - platform: template
+    id: uart_payload_text
+    name: "UART Text Payload"
+    mode: text # Can be 'text' or 'password'
+    optimistic: True
+
+# Global variable to track timer state
+globals:
+  - id: message_detector_timer_count
+    type: int
+    restore_value: false
+    initial_value: "0"
+    
+  # Global variable to track binary sensor state
+  - id: message_detector_state
+    type: bool
+    restore_value: false
+    initial_value: "false"
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Intercom Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
