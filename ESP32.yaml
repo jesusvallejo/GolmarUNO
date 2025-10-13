@@ -37,48 +37,6 @@ binary_sensor:
 
 # Button to send S285 message
 button:
-  # - platform: template
-  #   name: "Send UART Message"
-  #   on_press:
-  #     then:
-  #       - lambda: |-
-  #           // 1. Get the hex string from the text component
-  #           // ⚠️ Make sure the ID here matches your text component's ID
-  #           std::string hex_string = id(uart_payload_text).state;
-
-  #           // 2. Validate the input string
-  #           // It must have an even number of characters to form complete bytes.
-  #           if (hex_string.length() % 2 != 0) {
-  #             ESP_LOGE("uart_send", "Error: Hex string must have an even number of characters.");
-  #             return; // Stop if invalid
-  #           }
-  #           // It must only contain valid hexadecimal characters (0-9, A-F, a-f).
-  #           if (hex_string.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos) {
-  #             ESP_LOGE("uart_send", "Error: Hex string contains invalid characters.");
-  #             return; // Stop if invalid
-  #           }
-
-  #           // 3. Prepare the byte array (vector) for sending
-  #           std::vector<uint8_t> byte_payload;
-
-  #           // Add your static prefix bytes
-  #           byte_payload.push_back(0x00);
-  #           byte_payload.push_back(0x00);
-
-  #           // 4. Loop through the string and convert hex pairs to bytes
-  #           for (int i = 0; i < hex_string.length(); i += 2) {
-  #             // Get a two-character substring (e.g., "53")
-  #             std::string byte_string = hex_string.substr(i, 2);
-  #             // Convert the hex string to a byte (e.g., "53" -> 0x53)
-  #             uint8_t byte = (uint8_t) strtol(byte_string.c_str(), NULL, 16);
-  #             byte_payload.push_back(byte);
-  #           }
-
-  #           // 5. Send the complete byte array over UART
-  #           // ⚠️ Make sure the ID here matches your uart component's ID
-  #           ESP_LOGD("uart_send", "Sending %d bytes over UART.", byte_payload.size());
-  #           id(arduino_uart).write_array(byte_payload.data(), byte_payload.size());
-
   - platform: template
     name: "Open Door"
     on_press:
@@ -92,16 +50,6 @@ button:
             id(arduino_uart).write_array(call_pattern2, 4);
             delay(4000);
             id(arduino_uart).write_array(call_pattern3, 4);
-  # - platform: template
-  #   name: "Bus clear"
-  #   on_press:
-  #     then:
-  #       - lambda: |-
-  #           // Simulate incoming call patterN
-  #           uint8_t bus_clear[] = {0x00 ,0x00 ,0x00 ,0x11}; 
-  #           id(arduino_uart).write_array(bus_clear, 4);
-  #           id(arduino_uart).write_array(bus_clear, 4);
-  #           id(arduino_uart).write_array(bus_clear, 4);
 
 # UART data processing using interval
 interval:
@@ -177,14 +125,6 @@ interval:
               ESP_LOGI("UART", "Timer finished - turning off binary sensor");
             }
           }
-
-
-text:
-  - platform: template
-    id: uart_payload_text
-    name: "UART Text Payload"
-    mode: text # Can be 'text' or 'password'
-    optimistic: True
 
 # Global variable to track timer state
 globals:
