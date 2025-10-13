@@ -104,7 +104,7 @@ reset_init; halt; flash read_bank 0 t-540.bin
 | Iniciar Audio    | 00 00 XX 10  |
 | LLamada de panico |00 00 XX 44|
 | Abrir puerta | 00 00 XX 90 |
-| Iniciar llanada con placa | 00 00 00 22|
+| Iniciar llamada con placa | 00 00 00 22|
 
 
 ---
