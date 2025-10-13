@@ -98,14 +98,14 @@ reset_init; halt; flash read_bank 0 t-540.bin
 * Se recomienda una limpieza del bus (por ejemplo `00 00 00 11`) tras realizar estas acciones.
 
 ### Comandos
-| Acción        | Commando    |
-| ------------- | -------- |
+| Acción              | Commando    |
+| -------------       | -------- |
 | Llamada entrante    | 00 00 XX 37 |
 | ACK                 | 00 00 XX 01 |
-| Limpiar BUS    | 00 00 00 11    |
-| Iniciar Audio    | 00 00 XX 10  |
-| LLamada de panico |00 00 XX 44|
-| Abrir puerta | 00 00 XX 90 |
+| Limpiar BUS         | 00 00 00 11 |
+| Iniciar Audio       | 00 00 XX 10 |
+| LLamada de panico   | 00 00 XX 44 |
+| Abrir puerta        | 00 00 XX 90 |
 | Iniciar llamada con placa | 00 00 00 22|
 
 
@@ -117,11 +117,13 @@ reset_init; halt; flash read_bank 0 t-540.bin
 
 ## ESPHOME
 Se añade schema yaml de esphome para domótica , se debe poner un diodo entre el puerto tx del esp32 y el tx del telefonillo. En caso de no hacerlo no recibiras las llamadas correctamente en el telefonillo.
+Recuerda que el telefonillo se alimenta con 17v, necesitaras un conversor (BUCK) a 5v.
 
+```bash
        |rx telf. - ----- - rx esp32 
 D -----|
        |tx telf. - diode - tx esp32
-
+```
  
 
 
