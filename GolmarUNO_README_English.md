@@ -24,6 +24,9 @@ It includes hardware information, debug access, firmware extraction, serial bus 
 | Debug Mode                | SWD                                                                                                                           |
 | JTAG/SWD Header (bottom to top) | `3v3`, `SWIO`, `SWCLK`, `NC`, `NC`, `GND`                                                                              |
 
+
+![[PCB \| height=48px]](https://github.com/jesusvallejo/GolmarUNO/blob/main/PCB%20connections.jpg?raw=true )
+
 ### Firmware Extraction
 
 Firmware was successfully extracted using OpenOCD. Example command:
