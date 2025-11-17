@@ -23,6 +23,8 @@ No me hago responsable de cualquier daño que se pueda ocasionar, actua bajo tu 
 | Modo debug                 | SWD                                                                                                                            |
 | Conexión JTAG/SWD (header) | De abajo a arriba: `3v3`, `SWIO`, `SWCLK`, `NC`, `NC`, `GND`                                                                   |
 
+![[PCB \| height=48px]](https://github.com/jesusvallejo/GolmarUNO/blob/main/PCB%20connections.jpg?raw=true )
+
 ### Extracción de firmware
 
 Se ha extraído el firmware con OpenOCD. Comando usado:
