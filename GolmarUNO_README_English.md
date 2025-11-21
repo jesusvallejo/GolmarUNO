@@ -128,7 +128,7 @@ reset_init; halt; flash read_bank 0 t-540.bin
 
 A sample ESPHome YAML schema for home automation is included.  
 Place a **diode** between the ESP32 TX pin and the intercom TX line. Without it, incoming calls may not be received properly by the handset.  
-Keep in mind the intercom is powered by **17 V** — you’ll need a **buck converter** to step it down to **5 V**.
+Keep in mind the intercom is powered by **17 V** — you’ll need a **buck converter** to step it down to **5 V**. Example and component at https://github.com/jesusvallejo/components-esphome/
 
 ```bash
        |rx intercom - ----- - rx esp32 
