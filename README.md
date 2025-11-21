@@ -119,7 +119,7 @@ reset_init; halt; flash read_bank 0 t-540.bin
 
 ## ESPHOME
 Se añade schema yaml de esphome para domótica , se debe poner un diodo entre el puerto tx del esp32 y el tx del telefonillo. En caso de no hacerlo no recibiras las llamadas correctamente en el telefonillo.
-Recuerda que el telefonillo se alimenta con 17v, necesitaras un conversor (BUCK) a 5v.
+Recuerda que el telefonillo se alimenta con 17v, necesitaras un conversor (BUCK) a 5v. Ejemplo y componente en https://github.com/jesusvallejo/components-esphome/
 
 ```bash
        |rx telf. - ----- - rx esp32 
